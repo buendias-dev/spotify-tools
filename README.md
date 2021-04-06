@@ -19,12 +19,18 @@ optional arguments:
 https://developer.spotify.com/console
 
 ## Export to playlists.json
+  --token token  API token https://developer.spotify.com/console/get-current-user-playlists/
+  --file file    File name
+  
 ```
 spotify-tools.py import --token "mytoken" --file playlists.json
 ```
 
 
 ## Import from playlists.json
+  --token token  API token. Import --> https://developer.spotify.com/console/post-playlist-tracks/
+  --file file    File name
+
 ```
 spotify-tools.py import --token "mytoken" --file playlists.json
 ```
