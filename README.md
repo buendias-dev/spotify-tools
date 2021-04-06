@@ -25,7 +25,7 @@ https://developer.spotify.com/console
 ```
 
 ```
-spotify-tools.py import --token "mytoken" --file playlists.json
+$ spotify-tools.py import --token "mytoken" --file playlists.json
 ```
 
 
@@ -36,5 +36,5 @@ spotify-tools.py import --token "mytoken" --file playlists.json
 ```
 
 ```
-spotify-tools.py import --token "mytoken" --file playlists.json
+$ spotify-tools.py import --token "mytoken" --file playlists.json
 ```
