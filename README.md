@@ -12,7 +12,10 @@ positional arguments:
     import              Import playlists
     user                User info
     merge               Merge two playlists
-
+    get_following_artist_ids
+                        Get followed artist ids
+    add_following_artist_ids
+                        Add followed artist ids
 optional arguments:
   -h, --help            show this help message and exit
 ```
@@ -57,3 +60,24 @@ optional arguments:
                         Id of the second Playlist to merge
   --name playlist name  Name of the playlist
  ```
+## Get following artist ids
+```
+usage: spotify-tools.py get_following_artist_ids [-h] --token token
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --token token  API token --> https://developer.spotify.com/console/get-
+                 following/
+```
+
+## Add following artist ids
+```
+usage: spotify-tools.py add_following_artist_ids [-h] --token token --ids ids
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --token token  API token --> https://developer.spotify.com/console/put-
+                 following/
+  --ids ids      Comma separated ids of artists
+```
+

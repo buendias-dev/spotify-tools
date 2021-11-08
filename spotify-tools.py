@@ -92,12 +92,36 @@ def merge_playlists(playlist_id_1, playlist_id_2, des_name, token):
     items = list(dict.fromkeys(playlist1_items + playlist2_items))
     user_id = get_user(token)['id']
     playlist_id = create_playlist(des_name, "Combined playlist", False, user_id, token)
-
     
     items_chunks = chunks(items, 10)
     for i in items_chunks:
         add_items_to_playlist(playlist_id, i, token)
     print(playlist_id)
+
+def get_following_artists(token):
+    headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
+    req = request.Request(url='https://api.spotify.com/v1/me/following?type=artist', headers= headers)
+    with request.urlopen(req) as f:
+        followed = f.read().decode('utf-8')
+        jfollowed = json.loads(followed)
+        return jfollowed
+
+def get_following_artist_ids(token):
+    jfollowed = get_following_artists(token)
+    return [ i_artist['uri'].replace('spotify:artist:', '') for i_artist in jfollowed['artists']['items'] ]
+
+def add_following_artist_ids(token, ids):
+    headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
+
+    ids_chunks = chunks(ids, 50)
+    for ids_chunk in ids_chunks:       
+        data = { "ids": ids_chunk }
+        data = json.dumps(data)
+        data = data.encode()
+
+        req = request.Request(url='https://api.spotify.com/v1/me/following?type=artist', method="PUT", headers = headers)
+        with request.urlopen(req, data=data) as f:
+            f.read().decode('utf-8')       
 
 import argparse
 parser = argparse.ArgumentParser(description='Import and export of Spotify playlists')
@@ -122,6 +146,13 @@ imp.add_argument('--name', metavar='playlist name', type=str, dest='playlist_nam
 imp = subparsers.add_parser('user', help='User info')
 imp.add_argument('--token', metavar='token', type=str, dest='token', required=True, help='API token. Import --> https://developer.spotify.com/console/')
 
+imp = subparsers.add_parser('get_following_artist_ids', help='Get followed artist ids')
+imp.add_argument('--token', metavar='token', type=str, dest='token', required=True, help='API token --> https://developer.spotify.com/console/get-following/')
+
+imp = subparsers.add_parser('add_following_artist_ids', help='Add followed artist ids')
+imp.add_argument('--token', metavar='token', type=str, dest='token', required=True, help='API token --> https://developer.spotify.com/console/put-following/')
+imp.add_argument('--ids', metavar='ids', type=str, dest='ids', required=True, help='Comma separated ids of artists')
+
 args = parser.parse_args()
 if args.tool == "export":
     try:
@@ -129,26 +160,38 @@ if args.tool == "export":
         # Guarda las playlists
         save_json(args.file_name, pls)
     except error.HTTPError as err:
-        print(err.code, err.reason);
+        print(err.code, err.reason)
         print(err.read())
 
 elif args.tool == "import":
     try:
         import_playlists(args.file_name, args.token)
     except error.HTTPError as err:
-        print(err.code, err.reason);
+        print(err.code, err.reason)
         print(err.read())
 elif args.tool == "merge":
     try:
         print(merge_playlists(args.playlist_id_1, args.playlist_id_2, args.playlist_name, args.token))
     except error.HTTPError as err:
-        print(err.code, err.reason);
+        print(err.code, err.reason)
         print(err.read())
 elif args.tool == "user":
     try:
         print(get_user(args.token))
     except error.HTTPError as err:
-        print(err.code, err.reason);
+        print(err.code, err.reason)
+        print(err.read())
+elif args.tool == "get_following_artist_ids":
+    try:
+        print(get_following_artist_ids(args.token))
+    except error.HTTPError as err:
+        print(err.code, err.reason)
+        print(err.read())
+elif args.tool == "add_following_artist_ids":
+    try:
+        print(add_following_artist_ids(args.token, args.ids.split(',')))
+    except error.HTTPError as err:
+        print(err.code, err.reason)
         print(err.read())
 else:
     print("Parameters error")
