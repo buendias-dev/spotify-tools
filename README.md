@@ -38,3 +38,21 @@ $ spotify-tools.py import --token "mytoken" --file playlists.json
 ```
 $ spotify-tools.py import --token "mytoken" --file playlists.json
 ```
+
+## Merge to playlists in a new playlist
+```
+usage: spotify-tools.py merge [-h] --token token --playlist_id_1 playlist id 1
+                              --playlist_id_2 playlist id 2 --name playlist
+                              name
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --token token         API token. Import -->
+                        https://developer.spotify.com/console/post-playlist-
+                        tracks/
+  --playlist_id_1 playlist id 1
+                        Id of the first Playlist to merge
+  --playlist_id_2 playlist id 2
+                        Id of the second Playlist to merge
+  --name playlist name  Name of the playlist
+ ```
