@@ -82,6 +82,22 @@ def import_playlists(file_name, token):
         new_pl_id = create_playlist(pl['name'], pl['description'], True, user_id, token)
         add_items_to_playlist(new_pl_id, pl['items'], token)
 
+def chunks(mylist, chunk_size):
+    return [mylist[offs:offs+chunk_size] for offs in range(0, len(mylist), chunk_size)]
+
+def merge_playlists(playlist_id_1, playlist_id_2, des_name, token):
+    playlist1_items = get_playlist_items(playlist_id_1, token)
+    playlist2_items = get_playlist_items(playlist_id_2, token)
+    # Remopve repeated items
+    items = list(dict.fromkeys(playlist1_items + playlist2_items))
+    user_id = get_user(token)['id']
+    playlist_id = create_playlist(des_name, "Combined playlist", False, user_id, token)
+
+    
+    items_chunks = chunks(items, 10)
+    for i in items_chunks:
+        add_items_to_playlist(playlist_id, i, token)
+    print(playlist_id)
 
 import argparse
 parser = argparse.ArgumentParser(description='Import and export of Spotify playlists')
@@ -96,6 +112,12 @@ ex.add_argument('--file', metavar='file', type=str, dest='file_name', required=T
 imp = subparsers.add_parser('import', help='Import playlists')
 imp.add_argument('--token', metavar='token', type=str, dest='token', required=True, help='API token. Import --> https://developer.spotify.com/console/post-playlist-tracks/')
 imp.add_argument('--file', metavar='file', type=str, dest='file_name', required=True, help='File name')
+
+imp = subparsers.add_parser('merge', help='Merge two playlists')
+imp.add_argument('--token', metavar='token', type=str, dest='token', required=True, help='API token. Import --> https://developer.spotify.com/console/post-playlist-tracks/')
+imp.add_argument('--playlist_id_1', metavar='playlist id 1', type=str, dest='playlist_id_1', required=True, help='Id of the first Playlist to merge')
+imp.add_argument('--playlist_id_2', metavar='playlist id 2', type=str, dest='playlist_id_2', required=True, help='Id of the second Playlist to merge')
+imp.add_argument('--name', metavar='playlist name', type=str, dest='playlist_name', required=True, help='Name of the playlist')
 
 imp = subparsers.add_parser('user', help='User info')
 imp.add_argument('--token', metavar='token', type=str, dest='token', required=True, help='API token. Import --> https://developer.spotify.com/console/')
@@ -113,6 +135,12 @@ if args.tool == "export":
 elif args.tool == "import":
     try:
         import_playlists(args.file_name, args.token)
+    except error.HTTPError as err:
+        print(err.code, err.reason);
+        print(err.read())
+elif args.tool == "merge":
+    try:
+        print(merge_playlists(args.playlist_id_1, args.playlist_id_2, args.playlist_name, args.token))
     except error.HTTPError as err:
         print(err.code, err.reason);
         print(err.read())
