@@ -11,6 +11,7 @@ positional arguments:
     export              Export playlists
     import              Import playlists
     user                User info
+    merge               Merge two playlists
 
 optional arguments:
   -h, --help            show this help message and exit
