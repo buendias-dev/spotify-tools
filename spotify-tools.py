@@ -33,15 +33,22 @@ def get_users_playlists(token):
     return r
 
 def get_playlist_items(playlist_id, token):
+    limit = 20
+    offset = 0
     headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
-    req = request.Request(url='https://api.spotify.com/v1/playlists/' + playlist_id + '/tracks?fields=items(track.id)', headers = headers)
-    with request.urlopen(req) as f:
-        pl = f.read().decode('utf-8')
-        jpl = json.loads(pl)
-        r = []
-        for item in jpl['items']:
-            r.append(item['track']['id'])
-        return r
+    r = []
+    while True:     
+        req = request.Request(url=f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?fields=items(track.id)&limit={limit}&offset={offset}', headers = headers)
+        with request.urlopen(req) as f:
+            pl = f.read().decode('utf-8')
+            jpl = json.loads(pl)
+            if len(jpl['items']) == 0:
+                break
+            for item in jpl['items']:
+                r.append(item['track']['id'])
+        offset += limit
+    print(f"Retrieved playlist {playlist_id} with {len(r)} songs")
+    return r
 
 def create_playlist(name, description, public, user_id, token):
     headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
@@ -195,6 +202,4 @@ elif args.tool == "add_following_artist_ids":
         print(err.read())
 else:
     print("Parameters error")
-
-
 
