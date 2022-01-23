@@ -17,23 +17,30 @@ def get_user(token):
         return juser
 
 def get_users_playlists(token):
-    headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
-    req = request.Request(url='https://api.spotify.com/v1/me/playlists', headers= headers)
+    limit = 30
+    offset = 0
     r = { 'playlists' : [] }
-    with request.urlopen(req) as f:
-        pls = f.read().decode('utf-8')
-        jpls = json.loads(pls)
-        for item in jpls['items']:
-            r['playlists'].append({ 'id' : item['id'],
-                'name' : item['name'],
-                'description' : item['description'],
-                'items_href' : item['tracks']['href'],
-                'items' : get_playlist_items(item['id'], token)
-            })
+    headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
+    while True:     
+        req = request.Request(url=f'https://api.spotify.com/v1/me/playlists?limit={limit}&offset={offset}', headers= headers)
+        with request.urlopen(req) as f:
+            pls = f.read().decode('utf-8')
+            jpls = json.loads(pls)
+            if len(jpls['items']) == 0:
+                break
+            for item in jpls['items']:
+                r['playlists'].append({ 'id' : item['id'],
+                    'name' : item['name'],
+                    'description' : item['description'],
+                    'items_href' : item['tracks']['href'],
+                    'items' : get_playlist_items(item['id'], token)
+                })
+        offset += limit
+    print(f"Retrieved {len(r['playlists'])} playlists")
     return r
 
 def get_playlist_items(playlist_id, token):
-    limit = 20
+    limit = 30
     offset = 0
     headers = {"Content-Type": "application/json", "Authorization" : "Bearer " + token}
     r = []
@@ -202,4 +209,6 @@ elif args.tool == "add_following_artist_ids":
         print(err.read())
 else:
     print("Parameters error")
+
+
 
